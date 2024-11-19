@@ -4,9 +4,14 @@ import { backendUrl } from './config';
 const SearchNearbyUsers = () => {
     const [shopName, setShopName] = useState("");
     const [nearbyUsers, setNearbyUsers] = useState([]);
-    const [error, setError] = useState("");  // To manage any error messages
+    const [error, setError] = useState(""); // To manage any error messages
 
     const handleSearch = () => {
+        if (!shopName.trim()) {
+            setError("Please enter a shop name.");
+            return;
+        }
+
         // Ensure the shop name is properly encoded to prevent issues with special characters
         fetch(`${backendUrl}/api/search/shop?shopName=${encodeURIComponent(shopName)}`, {
             headers: {
@@ -14,18 +19,13 @@ const SearchNearbyUsers = () => {
             },
         })
         .then((response) => {
-            // Check if the response is OK (status code 200)
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
             // Check the Content-Type of the response
             const contentType = response.headers.get('Content-Type');
-            console.log('Content-Type:', contentType);  // For debugging
-
-            // If the response is JSON, parse it, otherwise throw an error
             if (contentType && contentType.includes('application/json')) {
-                return response.json();  // Parse the response as JSON
+                return response.json(); // Parse the response as JSON
             } else {
                 return response.text().then(text => {
                     throw new Error(`Unexpected response type: ${contentType}. Response: ${text}`);
@@ -33,14 +33,12 @@ const SearchNearbyUsers = () => {
             }
         })
         .then((data) => {
-            // If we receive the data, update the nearbyUsers state
             setNearbyUsers(data);
-            setError("");  // Clear error if fetch is successful
+            setError(""); // Clear error if fetch is successful
         })
         .catch((error) => {
-            // Set error state to display user-friendly message
             console.error("Error during fetch:", error);
-            setNearbyUsers([]);  // Clear any previous data
+            setNearbyUsers([]); // Clear any previous data
             setError("Something went wrong. Please try again."); // Show user-friendly error
         });
     };
@@ -59,6 +57,7 @@ const SearchNearbyUsers = () => {
             {/* Display error message if there's any */}
             {error && <p style={{ color: "red" }}>{error}</p>}
 
+            {/* Display list of nearby users */}
             {nearbyUsers.length > 0 ? (
                 <ul>
                     {nearbyUsers.map((user, index) => (
@@ -66,7 +65,7 @@ const SearchNearbyUsers = () => {
                     ))}
                 </ul>
             ) : (
-                <p>No users found near the shop</p>
+                !error && <p>No users found near the shop.</p>
             )}
         </div>
     );
