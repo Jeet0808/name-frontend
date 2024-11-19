@@ -28,7 +28,7 @@ function SignUp({ setMobileno }) {
             ...prevErrors,
             [name]: '', // Clear error for the field being edited
         }));
-        navigate('/UserLocation');
+      
     };
 
     const validateFields = () => {
@@ -85,6 +85,7 @@ function SignUp({ setMobileno }) {
 
             const data = await response.json();
             console.log('Success:', data);
+            navigate('/UserLocation');
 
             // Reset form
             setFormData({
