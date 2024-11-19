@@ -1,53 +1,63 @@
 import React, { useState } from 'react';
-
-function SignUp({ setMobileno }) { // Accept setMobileno as prop
+import { backendUrl } from './config';
+import { useNavigate } from 'react-router-dom';
+function SignUp({ setMobileno }) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         mobileno: '',
         classno: '',
-        scholarno: ''
+        scholarno: '',
     });
 
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate(); // Hook to navigate to different pages
 
-    const classOptions = ['C-11']; // Predefined class numbers
+    const classOptions = ['C-11']; // Add more class options if needed
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
 
-        setErrors({
-            ...errors,
-            [e.target.name]: ''
-        });
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+
+        setErrors((prevErrors) => ({
+            ...prevErrors,
+            [name]: '', // Clear error for the field being edited
+        }));
+        navigate('/UserLocation');
     };
 
     const validateFields = () => {
         const newErrors = {};
 
+        if (!formData.name.trim()) {
+            newErrors.name = 'Name is required.';
+        }
+
+        if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = 'Please enter a valid email.';
+        }
+
         if (!/^\d{10}$/.test(formData.mobileno)) {
             newErrors.mobileno = 'Mobile number must be exactly 10 digits.';
+        }
+
+        if (!formData.classno) {
+            newErrors.classno = 'Please select a class number.';
         }
 
         if (!/^\d{7}$/.test(formData.scholarno)) {
             newErrors.scholarno = 'Scholar number must be exactly 7 digits.';
         }
 
-        if (!formData.name.trim()) {
-            newErrors.name = 'Name is required.';
-        }
-        if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email.';
-        }
-
         return newErrors;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const fieldErrors = validateFields();
@@ -58,39 +68,38 @@ function SignUp({ setMobileno }) { // Accept setMobileno as prop
 
         setLoading(true);
 
-        // Update mobileno in parent component (App.js)
-        setMobileno(formData.mobileno);
+        try {
+            setMobileno(formData.mobileno); // Update mobileno in parent component
 
-        fetch('http://localhost:8080/api/Signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to submit form');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                setFormData({
-                    name: '',
-                    email: '',
-                    mobileno: '',
-                    classno: '',
-                    scholarno: ''
-                });
-                
-                setErrors({});
-                setLoading(false);
-            })
-            .catch(err => {
-                setLoading(false);
-                console.error('Error:', err);
+            const response = await fetch(`${backendUrl}/api/Signup`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit form');
+            }
+
+            const data = await response.json();
+            console.log('Success:', data);
+
+            // Reset form
+            setFormData({
+                name: '',
+                email: '',
+                mobileno: '',
+                classno: '',
+                scholarno: '',
+            });
+            setErrors({});
+        } catch (err) {
+            console.error('Error:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -123,7 +132,7 @@ function SignUp({ setMobileno }) { // Accept setMobileno as prop
                 <div>
                     <label htmlFor="mobileno">Mobile No</label>
                     <input
-                        type="number"
+                        type="text"
                         id="mobileno"
                         name="mobileno"
                         value={formData.mobileno}
@@ -141,13 +150,16 @@ function SignUp({ setMobileno }) { // Accept setMobileno as prop
                         value={formData.classno}
                         onChange={handleChange}
                     >
-                        <option value="" disabled>Select Class No</option>
+                        <option value="" disabled>
+                            Select Class No
+                        </option>
                         {classOptions.map((option) => (
                             <option key={option} value={option}>
                                 {option}
                             </option>
                         ))}
                     </select>
+                    {errors.classno && <p style={{ color: 'red' }}>{errors.classno}</p>}
                 </div>
                 <div>
                     <label htmlFor="scholarno">Scholar No</label>
@@ -162,7 +174,7 @@ function SignUp({ setMobileno }) { // Accept setMobileno as prop
                     />
                     {errors.scholarno && <p style={{ color: 'red' }}>{errors.scholarno}</p>}
                 </div>
-                <button type="submit" disabled={loading}>
+                <button type="submit" disabled={loading} >
                     {loading ? 'Submitting...' : 'Submit'}
                 </button>
             </form>

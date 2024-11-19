@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-
+import { backendUrl } from './config';
 const SearchNearbyUsers = () => {
     const [shopName, setShopName] = useState("");
     const [nearbyUsers, setNearbyUsers] = useState([]);
 
     const handleSearch = () => {
-        fetch(`http://localhost:8080/api/search/shop?shopName=${shopName}`)
+        fetch(`${backendUrl}/api/search/shop?shopName=${shopName}`)
             .then((response) => {
                 if (response.ok) {
                     return response.json();

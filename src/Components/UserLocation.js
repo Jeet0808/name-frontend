@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { backendUrl } from './config';
 
 const UserLocation = ({ mobileno }) => {
-    const [nearbyUsers, setNearbyUsers] = useState([]); // Default to empty array
+    // State to store the coordinates
+    const [location, setLocation] = useState({ latitude: null, longitude: null });
 
     // Define sendLocationToBackend function outside of useEffect
     const sendLocationToBackend = (latitude, longitude) => {
-        fetch("http://localhost:8080/api/user/location", {
+        fetch(`${backendUrl}/api/user/location`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -27,34 +29,37 @@ const UserLocation = ({ mobileno }) => {
 
     useEffect(() => {
         // Get user location
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    // Send location to the backend
-                    sendLocationToBackend(latitude, longitude);
-                },
-                (error) => {
-                    console.error("Error getting location:", error);
-                }
-            );
-        } else {
-            alert("Geolocation is not supported by your browser.");
-        }
+        const watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                // Update location state
+                setLocation({ latitude, longitude });
+                // Send location to the backend
+                sendLocationToBackend(latitude, longitude);
+                console.log("lat", latitude, "lon", longitude);
+            },
+            (error) => {
+                console.error("Error getting location:", error);
+            }
+        );
+
+        // Cleanup the geolocation watcher when the component is unmounted
+        return () => {
+            navigator.geolocation.clearWatch(watchId);
+        };
     }, []); // No need for dependencies here since sendLocationToBackend is defined outside
 
     return (
         <div>
-            <h1>Nearby Users</h1>
-            <ul>
-                {Array.isArray(nearbyUsers) && nearbyUsers.length > 0 ? (
-                    nearbyUsers.map((user, index) => (
-                        <li key={index}>{user.name}</li>
-                    ))
-                ) : (
-                    <li>No nearby users found</li> // Handle case when no users are nearby
-                )}
-            </ul>
+            <h1>Your Coordinates:</h1>
+            {location.latitude && location.longitude ? (
+                <ul>
+                    <li>Latitude: {location.latitude}</li>
+                    <li>Longitude: {location.longitude}</li>
+                </ul>
+            ) : (
+                <p>Loading location...</p>
+            )}
         </div>
     );
 };

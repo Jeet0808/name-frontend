@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom"; // Import react-router-dom components
 import SignUp from "./Components/SignUp"; // Import SignUp component
 import Login from "./Components/Login"; // Import Login component
@@ -7,8 +7,6 @@ import SearchNearbyUsers from "./Components/SearchNearbyUsers"; // Import Search
 import UserLocation from "./Components/UserLocation"; 
 
 function App() {
-  const [mobileno, setMobileno] = useState(""); // State to store mobile number
-
   return (
     <Router>
       <div>
@@ -17,24 +15,18 @@ function App() {
           <Link to="/">Home</Link> |{" "}
           <Link to="/signup">Sign Up</Link> |{" "}
           <Link to="/login">Login</Link> |{" "}
-          <Link to="/search">Search Nearby Users</Link> |{" "}
-          <Link to="/userlocation">User Location</Link>
+          <Link to="/search">Search Nearby Users</Link>
+          <Link to="/userlocation">Search Nearby Users</Link>
         </nav>
 
         {/* Define routes for each page */}
         <Routes>
-          <Route path="/" element={<h1>Welcome to the App!</h1>} />
-          <Route
-            path="/signup"
-            element={<SignUp setMobileno={setMobileno} />} // Pass setMobileno function to SignUp
-          />
+          <Route path="/" element={<h1>Welcome to Medicapes live. Testing version!</h1>} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<Login />} />
           <Route path="/verification" element={<Verification />} />
           <Route path="/search" element={<SearchNearbyUsers />} />
-          <Route
-            path="/userlocation"
-            element={<UserLocation mobileno={mobileno} />} // Pass mobileno prop to UserLocation
-          />
+          <Route path="/userlocation" element={<UserLocation />} />
         </Routes>
       </div>
     </Router>
