@@ -1,36 +1,58 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom"; // Import react-router-dom components
-import SignUp from "./Components/SignUp"; // Import SignUp component
-import Login from "./Components/Login"; // Import Login component
-import Verification from "./Components/ver"; // Import Verification component
-import SearchNearbyUsers from "./Components/SearchNearbyUsers"; // Import SearchNearbyUsers component
-import UserLocation from "./Components/UserLocation"; 
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+
+import Login from "./Components/Login";
+import Verification from "./Components/ver";
+import SearchNearbyUsers from "./Components/SearchNearbyUsers";
+import UserLocation from "./Components/UserLocation";
+
+import SignUp from "./Components/SignUp";
 
 function App() {
+
   return (
     <Router>
       <div>
         {/* Add navigation links */}
-        <nav>
-          <Link to="/">Home</Link> |{" "}
-          <Link to="/signup">Sign Up</Link> |{" "}
-          <Link to="/login">Login</Link> |{" "}
-          <Link to="/search">Search Nearby Users</Link>
-          <Link to="/userlocation">Search Nearby Users</Link>
+        <nav style={navStyle}>
+          <Link style={linkStyle} to="/">Home</Link>
+          <Link style={linkStyle} to="/signup">Sign Up</Link>
+          <Link style={linkStyle} to="/login">Login</Link>
+          <Link style={linkStyle} to="/search">Search Nearby Users</Link>
+          <Link style={linkStyle} to="/userlocation">User Location</Link>
         </nav>
 
         {/* Define routes for each page */}
         <Routes>
-          <Route path="/" element={<h1>Welcome to Medicapes live. Testing version!</h1>} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/"
+            element={<h1>Welcome to Medicapes Live. Testing version!</h1>}
+          />
+          <Route path="/signup" element={<SignUp />}/>
           <Route path="/login" element={<Login />} />
           <Route path="/verification" element={<Verification />} />
           <Route path="/search" element={<SearchNearbyUsers />} />
           <Route path="/userlocation" element={<UserLocation />} />
+          <Route
+            path="*"
+            element={<h1>404 - Page Not Found</h1>}
+          />
         </Routes>
       </div>
     </Router>
   );
 }
+
+const navStyle = {
+  padding: "10px",
+  backgroundColor: "#f0f0f0",
+  borderBottom: "1px solid #ccc",
+};
+
+const linkStyle = {
+  margin: "0 10px",
+  textDecoration: "none",
+  color: "#007BFF",
+};
 
 export default App;

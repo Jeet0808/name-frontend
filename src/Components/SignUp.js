@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { backendUrl } from './config';
 import { useNavigate } from 'react-router-dom';
-function SignUp({ setMobileno }) {
+function SignUp() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -69,7 +69,7 @@ function SignUp({ setMobileno }) {
         setLoading(true);
 
         try {
-            setMobileno(formData.mobileno); // Update mobileno in parent component
+           
 
             const response = await fetch(`${backendUrl}/api/Signup`, {
                 method: 'POST',
@@ -85,7 +85,7 @@ function SignUp({ setMobileno }) {
 
             const data = await response.json();
             console.log('Success:', data);
-            navigate('/UserLocation');
+            navigate(`/userlocation?mobileno=${formData.mobileno}`);
 
             // Reset form
             setFormData({

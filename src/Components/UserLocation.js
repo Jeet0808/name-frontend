@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { backendUrl } from './config';
 
-const UserLocation = ({ mobileno }) => {
+const UserLocation = () => {
+    const queryParams = new URLSearchParams(window.location.search); // Use window.location.search
+    const mobileno = queryParams.get('mobileno'); // Get the mobileno from query params
+
     // State to store the coordinates
     const [location, setLocation] = useState({ latitude: null, longitude: null });
 
-    // Define sendLocationToBackend function outside of useEffect
+    // State to store nearby users
+    const [nearbyUsers, setNearbyUsers] = useState([]);
+    // Define nearbyUsers state here
+
+    // Define sendLocationToBackend function
     const sendLocationToBackend = (latitude, longitude) => {
         fetch(`${backendUrl}/api/user/location`, {
             method: "POST",
@@ -59,6 +66,19 @@ const UserLocation = ({ mobileno }) => {
                 </ul>
             ) : (
                 <p>Loading location...</p>
+            )}
+
+            <h2>Nearby Users:</h2>
+            {nearbyUsers.length > 0 ? (
+                <ul>
+                    {nearbyUsers.map((user, index) => (
+                        <li key={index}>
+                            {user.name || "User"} - {user.distance} km away
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p>No nearby users found.</p>
             )}
         </div>
     );
